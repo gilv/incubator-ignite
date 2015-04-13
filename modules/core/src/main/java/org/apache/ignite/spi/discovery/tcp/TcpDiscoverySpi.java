@@ -1255,11 +1255,7 @@ public class TcpDiscoverySpi extends TcpDiscoverySpiAdapter implements TcpDiscov
     /** {@inheritDoc} */
     @Override public void sendCustomEvent(DiscoveryCustomMessage evt) {
         try {
-            byte[] msgBytes;
-
-            msgBytes = marsh.marshal(evt);
-
-            msgWorker.addMessage(new TcpDiscoveryCustomEventMessage(getLocalNodeId(), evt, msgBytes));
+            msgWorker.addMessage(new TcpDiscoveryCustomEventMessage(getLocalNodeId(), marsh.marshal(evt)));
         }
         catch (IgniteCheckedException e) {
             throw new IgniteSpiException("Failed to marshal custom event: " + evt, e);
@@ -4495,11 +4491,8 @@ public class TcpDiscoverySpi extends TcpDiscoverySpiAdapter implements TcpDiscov
 
                     TcpDiscoveryNode node = ring.node(msg.creatorNodeId());
 
-                    Serializable msgObj = msg.message();
-
                     try {
-                        if (msgObj == null)
-                            msgObj = marsh.unmarshal(msg.messageBytes(), U.gridClassLoader());
+                        Serializable msgObj = marsh.unmarshal(msg.messageBytes(), U.gridClassLoader());
 
                         lsnr.onDiscovery(DiscoveryCustomEvent.EVT_DISCOVERY_CUSTOM_EVT,
                             msg.topologyVersion(),
