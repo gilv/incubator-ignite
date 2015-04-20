@@ -98,6 +98,8 @@ public class ZStringsSocketStreamerExample {
 
                 sockStmr.setDelimiter(DELIM);
 
+                sockStmr.setIgnite(ignite);
+
                 sockStmr.setStreamer(stmr);
 
                 // Converter from zero-terminated string to Java strings.

@@ -89,6 +89,8 @@ public class SocketStreamerExample {
 
                 sockStmr.setPort(PORT);
 
+                sockStmr.setIgnite(ignite);
+
                 sockStmr.setStreamer(stmr);
 
                 sockStmr.setTupleExtractor(new StreamTupleExtractor<Tuple, Integer, Long>() {

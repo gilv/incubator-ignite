@@ -244,6 +244,8 @@ public class IgniteSocketStreamerSelfTest extends GridCommonAbstractTest {
 
             IgniteCache<Integer, String> cache = ignite.cache(null);
 
+            sockStmr.setIgnite(ignite);
+
             sockStmr.setStreamer(stmr);
 
             sockStmr.setPort(port);

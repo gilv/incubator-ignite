@@ -26,17 +26,17 @@ import java.util.*;
  * Buffer with message delimiter support.
  */
 public class GridNioDelimitedBuffer {
-    /** Buffer size. */
-    private static final int BUFFER_SIZE = 512;
-
     /** Delimiter. */
     private final byte[] delim;
 
     /** Data. */
-    private byte[] data;
+    private byte[] data = new byte[512];
 
     /** Count. */
     private int cnt;
+
+    /** Index. */
+    private int idx;
 
     /**
      * @param delim Delimiter.
@@ -55,8 +55,7 @@ public class GridNioDelimitedBuffer {
      */
     private void reset() {
         cnt = 0;
-
-        data = new byte[BUFFER_SIZE];
+        idx = 0;
     }
 
     /**
@@ -64,14 +63,20 @@ public class GridNioDelimitedBuffer {
      * @return Message bytes or {@code null} if message is not fully read yet.
      */
     @Nullable public byte[] read(ByteBuffer buf) {
-        for(; buf.hasRemaining();) {
-
+        while(buf.hasRemaining()) {
             if (cnt == data.length)
                 data = Arrays.copyOf(data, data.length * 2);
 
-            data[cnt++] = buf.get();
+            byte b = buf.get();
 
-            if (cnt >= delim.length && found()) {
+            data[cnt++] = b;
+
+            if (b == delim[idx])
+                idx++;
+            else
+                idx = (b == delim[0]) ? 1 : 0;
+
+            if (idx == delim.length) {
                 byte[] bytes = Arrays.copyOfRange(data, 0, cnt - delim.length);
 
                 reset();
@@ -81,21 +86,5 @@ public class GridNioDelimitedBuffer {
         }
 
         return null;
-    }
-
-    /**
-     * Tries find delimiter in buffer.
-     *
-     * @return {@code True} if delimiter found, {@code false} - otherwise.
-     */
-    private boolean found() {
-        int from = cnt - delim.length;
-
-        for (int i = 0; i < delim.length ; i++) {
-            if (delim[i] != data[from + i])
-                return false;
-        }
-
-        return true;
     }
 }

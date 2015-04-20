@@ -18,18 +18,15 @@
 package org.apache.ignite.stream.socket;
 
 import org.apache.ignite.*;
-import org.apache.ignite.internal.processors.datastreamer.*;
 import org.apache.ignite.internal.util.nio.*;
 import org.apache.ignite.internal.util.typedef.*;
 import org.apache.ignite.internal.util.typedef.internal.*;
 import org.apache.ignite.marshaller.jdk.*;
 import org.apache.ignite.stream.adapters.*;
-
 import org.jetbrains.annotations.*;
 
 import java.net.*;
 import java.nio.*;
-import java.util.*;
 
 /**
  * Server that receives data from TCP socket, converts it to key-value pairs using {@link StreamTupleExtractor} and
@@ -132,15 +129,12 @@ public class IgniteSocketStreamer<T, K, V> extends StreamAdapter<T, K, V> {
      * @throws IgniteException If failed.
      */
     public void start() {
-        A.notNull(getTupleExtractor(), "tupleExtractor is null");
-        A.notNull(getStreamer(), "streamer is null");
+        A.notNull(getTupleExtractor(), "tupleExtractor");
+        A.notNull(getStreamer(), "streamer");
+        A.notNull(getIgnite(), "ignite");
         A.ensure(threads > 0, "threads > 0");
 
-        UUID uuid = ((DataStreamerImpl)getStreamer()).cacheObjectContext().kernalContext().localNodeId();
-
-        Ignite ignite = Ignition.ignite(uuid);
-
-        log = ignite.log();
+        log = getIgnite().log();
 
         GridNioServerListener<byte[]> lsnr = new GridNioServerListenerAdapter<byte[]>() {
             @Override public void onConnected(GridNioSession ses) {
@@ -156,11 +150,7 @@ public class IgniteSocketStreamer<T, K, V> extends StreamAdapter<T, K, V> {
             }
 
             @Override public void onMessage(GridNioSession ses, byte[] msg) {
-                T obj = converter.convert(msg);
-
-                Map.Entry<K, V> e = getTupleExtractor().extract(obj);
-
-                getStreamer().addData(e);
+                addMessage(converter.convert(msg));
             }
         };
 
