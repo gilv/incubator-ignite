@@ -30,7 +30,7 @@ public class GridNioDelimitedBuffer {
     private final byte[] delim;
 
     /** Data. */
-    private byte[] data = new byte[512];
+    private byte[] data = new byte[16384];
 
     /** Count. */
     private int cnt;
@@ -73,8 +73,24 @@ public class GridNioDelimitedBuffer {
 
             if (b == delim[idx])
                 idx++;
-            else
-                idx = (b == delim[0]) ? 1 : 0;
+            else if (idx > 0) {
+                int pos = cnt - idx;
+
+                idx = 0;
+
+                for (int i = pos; i < cnt; i++) {
+                    if (data[pos] == delim[idx]) {
+                        pos++;
+
+                        idx++;
+                    }
+                    else {
+                        pos = cnt - idx;
+
+                        idx = 0;
+                    }
+                }
+            }
 
             if (idx == delim.length) {
                 byte[] bytes = Arrays.copyOfRange(data, 0, cnt - delim.length);
