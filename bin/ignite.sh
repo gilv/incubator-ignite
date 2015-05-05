@@ -33,7 +33,8 @@ fi
 #
 SCRIPTS_HOME="${IGNITE_HOME_TMP}/bin"
 
-source "${SCRIPTS_HOME}"/include/functions.sh
+#source "${SCRIPTS_HOME}"/include/functions.sh
+. "${SCRIPTS_HOME}"/include/functions.sh
 
 #
 # Discover path to Java executable and check it's version.
