@@ -51,6 +51,7 @@ import java.util.concurrent.locks.*;
 
 import static org.apache.ignite.IgniteSystemProperties.*;
 import static org.apache.ignite.cache.CacheAtomicWriteOrderMode.*;
+import static org.apache.ignite.cache.CacheMemoryMode.*;
 import static org.apache.ignite.cache.CacheWriteSynchronizationMode.*;
 import static org.apache.ignite.internal.processors.cache.GridCacheOperation.*;
 import static org.apache.ignite.internal.processors.cache.GridCacheUtils.*;
@@ -124,6 +125,9 @@ public class GridDhtAtomicCache<K, V> extends GridDhtCacheAdapter<K, V> {
                 GridCacheMapEntry next,
                 int hdrId)
             {
+                if (ctx.config().getMemoryMode() == OFFHEAP_TIERED || ctx.config().getMemoryMode() == OFFHEAP_VALUES)
+                    return new GridDhtAtomicOffHeapCacheEntry(ctx, topVer, key, hash, val, next, hdrId);
+
                 return new GridDhtAtomicCacheEntry(ctx, topVer, key, hash, val, next, hdrId);
             }
         });

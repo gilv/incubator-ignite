@@ -29,6 +29,9 @@ import static org.apache.ignite.events.EventType.*;
  */
 @SuppressWarnings({"NonPrivateFieldAccessedInSynchronizedContext", "TooBroadScope"})
 public class GridLocalCacheEntry extends GridCacheMapEntry {
+    /** Off-heap value pointer. */
+    protected long valPtr;
+
     /**
      * @param ctx  Cache registry.
      * @param key  Cache key.
@@ -383,5 +386,20 @@ public class GridLocalCacheEntry extends GridCacheMapEntry {
         checkOwnerChanged(prev, owner);
 
         return doomed != null;
+    }
+
+    /** {@inheritDoc} */
+    @Override protected boolean hasValPtr() {
+        return valPtr != 0;
+    }
+
+    /** {@inheritDoc} */
+    @Override protected long valPtr() {
+        return valPtr;
+    }
+
+    /** {@inheritDoc} */
+    @Override protected void setValPtr(long valPtr) {
+        this.valPtr = valPtr;
     }
 }

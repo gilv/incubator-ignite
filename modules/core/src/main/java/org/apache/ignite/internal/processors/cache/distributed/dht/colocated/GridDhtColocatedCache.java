@@ -38,6 +38,8 @@ import org.jetbrains.annotations.*;
 import java.io.*;
 import java.util.*;
 
+import static org.apache.ignite.cache.CacheMemoryMode.*;
+
 /**
  * Colocated cache.
  */
@@ -86,6 +88,9 @@ public class GridDhtColocatedCache<K, V> extends GridDhtTransactionalCacheAdapte
                 GridCacheMapEntry next,
                 int hdrId)
             {
+                if (ctx.config().getMemoryMode() == OFFHEAP_TIERED || ctx.config().getMemoryMode() == OFFHEAP_VALUES)
+                    return new GridDhtColocatedOffHeapCacheEntry(ctx, topVer, key, hash, val, next, hdrId);
+
                 return new GridDhtColocatedCacheEntry(ctx, topVer, key, hash, val, next, hdrId);
             }
         });
@@ -126,7 +131,7 @@ public class GridDhtColocatedCache<K, V> extends GridDhtTransactionalCacheAdapte
         boolean allowDetached
     ) {
         return allowDetached && !ctx.affinity().primary(ctx.localNode(), key, topVer) ?
-            new GridDhtDetachedCacheEntry(ctx, key, key.hashCode(), null, null, 0) : entryExx(key, topVer);
+            createEntry(key) : entryExx(key, topVer);
     }
 
     /** {@inheritDoc} */
