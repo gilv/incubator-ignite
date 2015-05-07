@@ -72,6 +72,7 @@ public class IgniteBasicTestSuite extends TestSuite {
         suite.addTestSuite(GridLifecycleAwareSelfTest.class);
         suite.addTestSuite(GridMessageListenSelfTest.class);
         suite.addTestSuite(GridFailFastNodeFailureDetectionSelfTest.class);
+        suite.addTestSuite(CacheMapEntrySelfTest.class);
 
         return suite;
     }

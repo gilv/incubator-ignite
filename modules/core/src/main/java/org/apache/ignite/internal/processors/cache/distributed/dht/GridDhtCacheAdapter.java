@@ -363,9 +363,6 @@ public abstract class GridDhtCacheAdapter<K, V> extends GridDistributedCacheAdap
      * @return Cache entry.
      */
     protected GridDistributedCacheEntry createEntry(KeyCacheObject key) {
-        if (ctx.config().getMemoryMode() == OFFHEAP_TIERED || ctx.config().getMemoryMode() == OFFHEAP_VALUES)
-            new GridDhtDetachedOffHeapCacheEntry(ctx, key, key.hashCode(), null, null, 0);
-
         return new GridDhtDetachedCacheEntry(ctx, key, key.hashCode(), null, null, 0);
     }
 

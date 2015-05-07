@@ -39,17 +39,17 @@ public class GridNearOffHeapCacheEntry extends GridNearCacheEntry {
     }
 
     /** {@inheritDoc} */
-    @Override protected boolean hasValPtr() {
+    @Override protected boolean hasOffHeapValuePointer() {
         return valPtr != 0;
     }
 
     /** {@inheritDoc} */
-    @Override protected long valPtr() {
+    @Override protected long offHeapValuePointer() {
         return valPtr;
     }
 
     /** {@inheritDoc} */
-    @Override protected void setValPtr(long valPtr) {
+    @Override protected void offHeapValuePointer(long valPtr) {
         this.valPtr = valPtr;
     }
 }
