@@ -17,6 +17,7 @@
 
 package org.apache.ignite.internal.processors.cache;
 
+import org.apache.ignite.*;
 import org.apache.ignite.cache.*;
 import org.apache.ignite.configuration.*;
 import org.apache.ignite.internal.*;
@@ -29,14 +30,8 @@ import org.apache.ignite.internal.processors.cache.local.*;
  * Cache map entry self test.
  */
 public class CacheMapEntrySelfTest extends GridCacheAbstractSelfTest {
-    /** Cache mode. */
-    private CacheMode cacheMode;
-
-    /** Atomicity mode. */
-    private CacheAtomicityMode atomicityMode;
-
-    /** Memory mode. */
-    private CacheMemoryMode memoryMode;
+    /** Cache id. */
+    private int cacheId = 0;
 
     /** {@inheritDoc} */
     @Override protected int gridCount() {
@@ -55,7 +50,7 @@ public class CacheMapEntrySelfTest extends GridCacheAbstractSelfTest {
 
     /** {@inheritDoc} */
     @Override protected void beforeTest() throws Exception {
-        // No-op.
+        startGrids(1);
     }
 
     /** {@inheritDoc} */
@@ -63,14 +58,23 @@ public class CacheMapEntrySelfTest extends GridCacheAbstractSelfTest {
         // No-op.
     }
 
-    /** {@inheritDoc} */
-    @Override protected CacheConfiguration cacheConfiguration(String gridName) throws Exception {
+    /**
+     * @param gridName Grid name.
+     * @param memoryMode Memory mode.
+     * @param atomicityMode Atomicity mode.
+     * @param cacheMode Cache mode.
+     * @param cacheName Cache name.
+     * @return Cache configuration.
+     * @throws Exception If failed.
+     */
+    private CacheConfiguration cacheConfiguration(String gridName, CacheMemoryMode memoryMode,
+        CacheAtomicityMode atomicityMode, CacheMode cacheMode, String cacheName) throws Exception {
         CacheConfiguration cfg = super.cacheConfiguration(gridName);
 
         cfg.setCacheMode(cacheMode);
         cfg.setAtomicityMode(atomicityMode);
         cfg.setMemoryMode(memoryMode);
-        cfg.setBackups(1);
+        cfg.setName(cacheName);
 
         return cfg;
     }
@@ -126,15 +130,14 @@ public class CacheMapEntrySelfTest extends GridCacheAbstractSelfTest {
      */
     private void checkCacheMapEntry(CacheMemoryMode memoryMode, CacheAtomicityMode atomicityMode, CacheMode cacheMode,
         Class<?> entryClass) throws Exception {
-        this.cacheMode = cacheMode;
-        this.atomicityMode = atomicityMode;
-        this.memoryMode = memoryMode;
+        CacheConfiguration cfg = cacheConfiguration(grid(0).name(), memoryMode, atomicityMode, cacheMode,
+            "Cache" + cacheId++);
 
-        IgniteKernal ignite = (IgniteKernal)startGrid(2);
+        IgniteCache jcache = grid(0).getOrCreateCache(cfg);
 
-        GridCacheAdapter<Integer, String> cache = ignite.internalCache(null);
+        GridCacheAdapter<Integer, String> cache = ((IgniteKernal)grid(0)).internalCache(jcache.getName());
 
-        Integer key = primaryKey(ignite.cache(null));
+        Integer key = primaryKey(grid(0).cache(null));
 
         cache.put(key, "val");
 
@@ -145,7 +148,5 @@ public class CacheMapEntrySelfTest extends GridCacheAbstractSelfTest {
         assertNotNull(entry);
 
         assertEquals(entry.getClass(), entryClass);
-
-        stopAllGrids();
     }
 }
