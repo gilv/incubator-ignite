@@ -18,81 +18,44 @@
 package org.apache.ignite.internal.processors.cache;
 
 import org.apache.ignite.*;
-import org.apache.ignite.configuration.*;
 import org.apache.ignite.internal.*;
-import org.apache.ignite.spi.discovery.tcp.*;
-import org.apache.ignite.spi.discovery.tcp.ipfinder.*;
-import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.*;
 import org.apache.ignite.testframework.*;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
-import static org.apache.ignite.cache.CacheMode.*;
-
 /**
  * Test remove all method.
  */
 public class CacheRemoveAllSelfTest extends GridCacheAbstractSelfTest {
-    /** IP finder. */
-    private static final TcpDiscoveryIpFinder IP_FINDER = new TcpDiscoveryVmIpFinder(true);
-
     /** {@inheritDoc} */
     @Override protected int gridCount() {
-        return 1;
-    }
-
-    /** {@inheritDoc} */
-    @Override protected void beforeTestsStarted() throws Exception {
-        startGrids(1);
-    }
-
-    /** {@inheritDoc} */
-    @Override protected void afterTestsStopped() throws Exception {
-        stopAllGrids();
-    }
-
-    /** {@inheritDoc} */
-    @Override protected IgniteConfiguration getConfiguration(String gridName) throws Exception {
-        IgniteConfiguration cfg = super.getConfiguration(gridName);
-
-        TcpDiscoverySpi discoSpi = new TcpDiscoverySpi();
-        discoSpi.setIpFinder(IP_FINDER);
-
-        cfg.setDiscoverySpi(discoSpi);
-
-        CacheConfiguration ccfg = defaultCacheConfiguration();
-
-        ccfg.setCacheMode(PARTITIONED);
-        ccfg.setBackups(1);
-        cfg.setCacheConfiguration(ccfg);
-
-        return cfg;
+        return 4;
     }
 
     /**
      * @throws Exception If failed.
      */
     public void testRemoveAll() throws Exception {
-        final AtomicInteger igniteId = new AtomicInteger(1);
+        IgniteCache<Integer, String> cache = grid(0).cache(null);
+
+        for (int i = 0; i < 10_000; ++i)
+            cache.put(i, "val");
+
+        final AtomicInteger igniteId = new AtomicInteger(gridCount());
 
         IgniteInternalFuture fut = GridTestUtils.runMultiThreadedAsync(new Callable<Object>() {
             @Override public Object call() throws Exception {
-                for (int i = 0; i < 5; ++i)
+                for (int i = 0; i < 3; ++i)
                     startGrid(igniteId.getAndIncrement());
 
                 return true;
             }
         }, 2, "start-node-thread");
 
-        IgniteCache<Integer, String> cache = grid(0).cache(null);
-
-        for (int i = 0; i < 10_000; ++i)
-            cache.put(i, "val");
+        cache.removeAll();
 
         fut.get();
-
-        cache.removeAll();
 
         for (int i = 0; i < igniteId.get(); ++i)
             assertEquals(0, grid(i).cache(null).localSize());
