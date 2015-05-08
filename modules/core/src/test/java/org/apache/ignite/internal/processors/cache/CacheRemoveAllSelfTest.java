@@ -74,12 +74,12 @@ public class CacheRemoveAllSelfTest extends GridCacheAbstractSelfTest {
      * @throws Exception If failed.
      */
     public void testRemoveAll() throws Exception {
-        final AtomicInteger igniteId = new AtomicInteger(0);
+        final AtomicInteger igniteId = new AtomicInteger(1);
 
         IgniteInternalFuture fut = GridTestUtils.runMultiThreadedAsync(new Callable<Object>() {
             @Override public Object call() throws Exception {
                 for (int i = 0; i < 5; ++i)
-                    startGrid(igniteId.incrementAndGet());
+                    startGrid(igniteId.getAndIncrement());
 
                 return true;
             }
