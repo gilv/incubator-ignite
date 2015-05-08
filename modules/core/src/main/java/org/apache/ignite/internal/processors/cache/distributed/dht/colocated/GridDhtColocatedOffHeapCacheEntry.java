@@ -25,7 +25,7 @@ import org.apache.ignite.internal.processors.cache.*;
  */
 public class GridDhtColocatedOffHeapCacheEntry extends GridDhtColocatedCacheEntry {
     /** Off-heap value pointer. */
-    protected long valPtr;
+    private long valPtr;
 
     /**
      * @param ctx    Cache context.
@@ -36,23 +36,28 @@ public class GridDhtColocatedOffHeapCacheEntry extends GridDhtColocatedCacheEntr
      * @param next   Next entry in the linked list.
      * @param hdrId  Header id.
      */
-    public GridDhtColocatedOffHeapCacheEntry(GridCacheContext ctx, AffinityTopologyVersion topVer, KeyCacheObject key,
-        int hash, CacheObject val, GridCacheMapEntry next, int hdrId) {
+    public GridDhtColocatedOffHeapCacheEntry(GridCacheContext ctx,
+        AffinityTopologyVersion topVer,
+        KeyCacheObject key,
+        int hash,
+        CacheObject val,
+        GridCacheMapEntry next,
+        int hdrId) {
         super(ctx, topVer, key, hash, val, next, hdrId);
     }
 
     /** {@inheritDoc} */
-    @Override protected boolean hasOffHeapValuePointer() {
+    @Override protected boolean hasOffHeapPointer() {
         return valPtr != 0;
     }
 
     /** {@inheritDoc} */
-    @Override protected long offHeapValuePointer() {
+    @Override protected long offHeapPointer() {
         return valPtr;
     }
 
     /** {@inheritDoc} */
-    @Override protected void offHeapValuePointer(long valPtr) {
+    @Override protected void offHeapPointer(long valPtr) {
         this.valPtr = valPtr;
     }
 }

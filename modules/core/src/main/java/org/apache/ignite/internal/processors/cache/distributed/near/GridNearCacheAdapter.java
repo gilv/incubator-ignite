@@ -37,8 +37,6 @@ import javax.cache.expiry.*;
 import java.io.*;
 import java.util.*;
 
-import static org.apache.ignite.cache.CacheMemoryMode.*;
-
 /**
  * Common logic for near caches.
  */
@@ -78,7 +76,7 @@ public abstract class GridNearCacheAdapter<K, V> extends GridDistributedCacheAda
             ) {
                 // Can't hold any locks here - this method is invoked when
                 // holding write-lock on the whole cache map.
-                if (ctx.config().getMemoryMode() == OFFHEAP_TIERED || ctx.config().getMemoryMode() == OFFHEAP_VALUES)
+                if (ctx.useOffheapEntry())
                     return new GridNearOffHeapCacheEntry(ctx, key, hash, val, next, hdrId);
 
                 return new GridNearCacheEntry(ctx, key, hash, val, next, hdrId);

@@ -25,8 +25,6 @@ import org.jetbrains.annotations.*;
 
 import java.util.*;
 
-import static org.apache.ignite.cache.CacheMemoryMode.*;
-
 /**
  * Empty cache map that will never store any entries.
  */
@@ -88,8 +86,7 @@ public class GridNoStorageCacheMap extends GridCacheConcurrentMap {
         boolean create)
     {
         if (create) {
-            GridCacheMapEntry entry =
-                ctx.config().getMemoryMode() == OFFHEAP_TIERED || ctx.config().getMemoryMode() == OFFHEAP_VALUES ?
+            GridCacheMapEntry entry = ctx.useOffheapEntry() ?
                 new GridDhtOffHeapCacheEntry(ctx, topVer, key, hash(key.hashCode()), val, null, 0) :
                 new GridDhtCacheEntry(ctx, topVer, key, hash(key.hashCode()), val, null, 0);
 
