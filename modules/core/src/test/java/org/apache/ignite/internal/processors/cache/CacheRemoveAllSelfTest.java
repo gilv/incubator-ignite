@@ -38,11 +38,6 @@ public class CacheRemoveAllSelfTest extends GridCacheAbstractSelfTest {
     private static final TcpDiscoveryIpFinder IP_FINDER = new TcpDiscoveryVmIpFinder(true);
 
     /** {@inheritDoc} */
-    @Override protected long getTestTimeout() {
-        return 60000;
-    }
-
-    /** {@inheritDoc} */
     @Override protected int gridCount() {
         return 1;
     }
